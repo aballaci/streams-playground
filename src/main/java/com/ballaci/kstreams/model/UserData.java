@@ -1,9 +1,6 @@
 package com.ballaci.kstreams.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -13,6 +10,7 @@ import java.io.Serializable;
 @Setter
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserData implements Serializable {
 
     private int id;

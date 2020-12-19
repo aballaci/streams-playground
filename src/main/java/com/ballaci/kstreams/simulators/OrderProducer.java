@@ -1,29 +1,12 @@
 package com.ballaci.kstreams.simulators;
 
-/*
- * Copyright (c) 2016-2018 Pivotal Software Inc, All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import com.ballaci.kstreams.model.UserData;
+import com.ballaci.kstreams.model.OrderThin;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,16 +29,16 @@ import java.util.concurrent.TimeUnit;
  *   <li> Start Zookeeper and Kafka server
  *   <li> Update {@link #BOOTSTRAP_SERVERS} and {@link #TOPIC} if required
  *   <li> Create Kafka topic {@link #TOPIC}
- *   <li> Run {@link UserDataProducer} as Java application with all dependent jars in the CLASSPATH (eg. from IDE).
+ *   <li> Run {@link OrderProducer} as Java application with all dependent jars in the CLASSPATH (eg. from IDE).
  *   <li> Shutdown Kafka server and Zookeeper when no longer required
  * </ol>
  */
-public class UserDataProducer {
+public class OrderProducer {
 
-    private static final Logger log = LoggerFactory.getLogger(UserDataProducer.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(OrderProducer.class.getName());
 
     private static final String BOOTSTRAP_SERVERS = "localhost:9092";
-    private static final String TOPIC = "user_data";
+    private static final String TOPIC = "orders";
 
     private final KafkaSender<String, String> sender;
     private final SimpleDateFormat dateFormat;
@@ -63,7 +46,7 @@ public class UserDataProducer {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public UserDataProducer(String bootstrapServers) {
+    public OrderProducer(String bootstrapServers) {
 
 
         Map<String, Object> props = new HashMap<>();
@@ -79,16 +62,16 @@ public class UserDataProducer {
     }
 
     public void sendMessages(String topic, int count, CountDownLatch latch) throws InterruptedException, JsonProcessingException {
-        sender.<Integer>send(Flux.range(20, count)
+        sender.<Integer>send(Flux.range(1, count)
                 .map(i -> {
-                    String userData = "";
+                    String order = "";
                     try {
-                        userData = this.objectMapper.writeValueAsString(new UserData(i, this.faker.name().firstName()));
+                        order = this.objectMapper.writeValueAsString(new OrderThin(i.toString(), i.toString(), String.valueOf(faker.random().nextInt(42000)), faker.random().nextInt(100)));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
-                    log.info(userData);
-                    return SenderRecord.create(new ProducerRecord<>(topic, i.toString(), userData),i);
+                    log.info(order);
+                    return SenderRecord.create(new ProducerRecord<>(topic, i.toString(), order), i);
                 }))
                 .doOnError(e -> log.error("Send failed", e))
                 .subscribe(r -> {
@@ -108,9 +91,9 @@ public class UserDataProducer {
     }
 
     public static void main(String[] args) throws Exception {
-        int count = 100000;
+        int count = 20;
         CountDownLatch latch = new CountDownLatch(count);
-        UserDataProducer producer = new UserDataProducer(BOOTSTRAP_SERVERS);
+        OrderProducer producer = new OrderProducer(BOOTSTRAP_SERVERS);
         producer.sendMessages(TOPIC, count, latch);
         latch.await(10, TimeUnit.SECONDS);
         producer.close();
