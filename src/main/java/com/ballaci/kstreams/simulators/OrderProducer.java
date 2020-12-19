@@ -66,7 +66,7 @@ public class OrderProducer {
                 .map(i -> {
                     String order = "";
                     try {
-                        order = this.objectMapper.writeValueAsString(new OrderThin(i.toString(), i.toString(), String.valueOf(faker.random().nextInt(42000)), faker.random().nextInt(100)));
+                        order = this.objectMapper.writeValueAsString(new OrderThin(i.toString(), i.toString(), i.toString(), faker.random().nextInt(100)));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }

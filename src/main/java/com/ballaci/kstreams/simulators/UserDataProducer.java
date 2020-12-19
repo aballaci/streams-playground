@@ -79,7 +79,7 @@ public class UserDataProducer {
     }
 
     public void sendMessages(String topic, int count, CountDownLatch latch) throws InterruptedException, JsonProcessingException {
-        sender.<Integer>send(Flux.range(20, count)
+        sender.<Integer>send(Flux.range(1, count)
                 .map(i -> {
                     String userData = "";
                     try {
@@ -108,7 +108,7 @@ public class UserDataProducer {
     }
 
     public static void main(String[] args) throws Exception {
-        int count = 100000;
+        int count = 20;
         CountDownLatch latch = new CountDownLatch(count);
         UserDataProducer producer = new UserDataProducer(BOOTSTRAP_SERVERS);
         producer.sendMessages(TOPIC, count, latch);

@@ -11,10 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.handler.annotation.SendTo;
 
 @Configuration
-
 public class StreamsConfig {
-
-    private static final String ORDERS_TOPIC = "orders";
 
     @StreamListener
     @SendTo("outputStream")
