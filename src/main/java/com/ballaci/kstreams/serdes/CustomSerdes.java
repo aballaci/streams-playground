@@ -11,38 +11,19 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 public final class CustomSerdes {
 
-    static public final class OrderThinSerde extends Serdes.WrapperSerde<OrderThin> {
-        public OrderThinSerde() {
-            super(new JsonSerializer<OrderThin>(),
-                    new JsonDeserializer<OrderThin>(OrderThin.class));
-        }
-    }
-
-    static public final class OrderFullSerde extends Serdes.WrapperSerde<OrderFull> {
-        public OrderFullSerde() {
-            super(new JsonSerializer<OrderFull>(),
-                    new JsonDeserializer<OrderFull>(OrderFull.class));
-        }
-    }
-
-    static public final class UserDataSerde extends Serdes.WrapperSerde<UserData> {
-        public UserDataSerde() {
-            super(new JsonSerializer<UserData>(),
-                    new JsonDeserializer<UserData>(UserData.class));
-        }
-    }
-
-
-    public static Serde<OrderThin> OrderThin() {
-        return new OrderThinSerde();
+    public static Serde<OrderThin> OrderThinSerde() {
+        return Serdes.serdeFrom(new JsonSerializer<OrderThin>(),
+                new JsonDeserializer<OrderThin>(OrderThin.class));
     }
 
     public static Serde<OrderFull> OrderFullSerde() {
-        return new CustomSerdes.OrderFullSerde();
+        return Serdes.serdeFrom(new JsonSerializer<OrderFull>(),
+                new JsonDeserializer<OrderFull>(OrderFull.class));
     }
 
     public static Serde<UserData> UserDataSerde() {
-        return new CustomSerdes.UserDataSerde();
+        return Serdes.serdeFrom(new JsonSerializer<UserData>(),
+                new JsonDeserializer<UserData>(UserData.class));
     }
 
 
