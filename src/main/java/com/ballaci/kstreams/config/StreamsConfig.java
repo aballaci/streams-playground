@@ -18,7 +18,7 @@ public class StreamsConfig {
                                              @Input("userTags") GlobalKTable<String, UserTags> tagsGlobalKTable) {
 
         return documentKStream
-                .selectKey((key, value) -> value.getUserId())
+                .selectKey((key, document) -> document.getUserId())
                 .join(tagsGlobalKTable,
                         (documentKey, userTagsKey) -> documentKey,
                         (document, userTags) -> {
