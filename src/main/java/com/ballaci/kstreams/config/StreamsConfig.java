@@ -1,8 +1,7 @@
 package com.ballaci.kstreams.config;
 
-import com.ballaci.kstreams.model.OrderFull;
-import com.ballaci.kstreams.model.OrderThin;
-import com.ballaci.kstreams.model.UserData;
+import com.ballaci.kstreams.model.Document;
+import com.ballaci.kstreams.model.UserTags;
 import org.apache.kafka.streams.kstream.GlobalKTable;
 import org.apache.kafka.streams.kstream.KStream;
 import org.springframework.cloud.stream.annotation.Input;
@@ -14,16 +13,27 @@ import org.springframework.messaging.handler.annotation.SendTo;
 public class StreamsConfig {
 
     @StreamListener
-    @SendTo("outputStream")
-    public KStream<String, OrderFull> process(@Input("inputStream") KStream<String, OrderThin> orders,
-                                              @Input("inputTable") GlobalKTable<String, UserData> users) {
+    @SendTo({"documentApproval", "notRelevant"})
+    public KStream<String, Document>[] route(@Input("documents") KStream<String, Document> documentKStream,
+                                             @Input("userTags") GlobalKTable<String, UserTags> tagsGlobalKTable) {
 
-        return orders
+        return documentKStream
                 .selectKey((key, value) -> value.getUserId())
-                .join(users,
+                .join(tagsGlobalKTable,
                         (orderKey, userDataKey) -> orderKey,
-                        (order, userData) -> new OrderFull(order.getId(), order.getProductId(), userData, order.getAmount()))
-                .selectKey((key, value) -> value.getId());
+                        (document, userTags) -> {
+                            document.setApprovalRelevant(isApprovalRelevant(document, userTags));
+                            return document;
+                        })
+                .selectKey((key, value) -> value.getId())
+                .branch(
+                        (key, value) -> value.isApprovalRelevant(),
+                        (key, value) -> !value.isApprovalRelevant()
+                );
 
+    }
+
+    private boolean isApprovalRelevant(Document document, UserTags userTags) {
+        return userTags.getTags().stream().anyMatch(t-> document.getTag().equals(t.getName()) && t.isRelevant());
     }
 }

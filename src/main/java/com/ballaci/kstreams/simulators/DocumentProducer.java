@@ -1,6 +1,6 @@
 package com.ballaci.kstreams.simulators;
 
-import com.ballaci.kstreams.model.OrderThin;
+import com.ballaci.kstreams.model.Document;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
@@ -16,6 +16,7 @@ import reactor.kafka.sender.SenderOptions;
 import reactor.kafka.sender.SenderRecord;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,16 +30,16 @@ import java.util.concurrent.TimeUnit;
  *   <li> Start Zookeeper and Kafka server
  *   <li> Update {@link #BOOTSTRAP_SERVERS} and {@link #TOPIC} if required
  *   <li> Create Kafka topic {@link #TOPIC}
- *   <li> Run {@link OrderProducer} as Java application with all dependent jars in the CLASSPATH (eg. from IDE).
+ *   <li> Run {@link DocumentProducer} as Java application with all dependent jars in the CLASSPATH (eg. from IDE).
  *   <li> Shutdown Kafka server and Zookeeper when no longer required
  * </ol>
  */
-public class OrderProducer {
+public class DocumentProducer {
 
-    private static final Logger log = LoggerFactory.getLogger(OrderProducer.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(DocumentProducer.class.getName());
 
     private static final String BOOTSTRAP_SERVERS = "localhost:9092";
-    private static final String TOPIC = "orders";
+    private static final String TOPIC = "documents";
 
     private final KafkaSender<String, String> sender;
     private final SimpleDateFormat dateFormat;
@@ -46,8 +47,9 @@ public class OrderProducer {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public OrderProducer(String bootstrapServers) {
 
+
+    public DocumentProducer(String bootstrapServers) {
 
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -66,13 +68,15 @@ public class OrderProducer {
                 .map(i -> {
                     String order = "";
                     try {
-                        order = this.objectMapper.writeValueAsString(new OrderThin(i.toString(), i.toString(), i.toString(), faker.random().nextInt(100)));
+                        String tagName = faker.options().nextElement(new String[]{"RechnungEingang", "RechnungAusgang", "MyTag"});
+                        order = this.objectMapper.writeValueAsString(new Document(i.toString(), i.toString(), tagName, false));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
                     log.info(order);
                     return SenderRecord.create(new ProducerRecord<>(topic, i.toString(), order), i);
                 }))
+                .delayElements(Duration.ofSeconds(1))
                 .doOnError(e -> log.error("Send failed", e))
                 .subscribe(r -> {
                     RecordMetadata metadata = r.recordMetadata();
@@ -93,7 +97,7 @@ public class OrderProducer {
     public static void main(String[] args) throws Exception {
         int count = 20;
         CountDownLatch latch = new CountDownLatch(count);
-        OrderProducer producer = new OrderProducer(BOOTSTRAP_SERVERS);
+        DocumentProducer producer = new DocumentProducer(BOOTSTRAP_SERVERS);
         producer.sendMessages(TOPIC, count, latch);
         latch.await(10, TimeUnit.SECONDS);
         producer.close();

@@ -2,27 +2,31 @@ spring:
   cloud:
     stream:
       function:
-        definition: enricher
+        definition: route
       default:
         producer:
           useNativeEncoding: true
         consumer:
           useNativeEncoding: true
       bindings:
-        inputTable:
-          destination: user_data
+        userTags:
+          destination: user_tags
           content-type: application/json
-          group: customaggregator-group
-          value.serde: com.ballaci.kstreams.serdesCustomSerdes$UserDataSerde
-        inputStream:
-          destination: orders
+          group: tags-group
+          value.serde: com.ballaci.kstreams.serdesCustomSerdes$UserTagsSerde
+        documents:
+          destination: documents
           content-type: application/json
-          group: customaggregator-group
-          value.serde: com.ballaci.kstreams.serdesCustomSerdes$OrderThinSerde
-        outputStream:
-          destination: orders_enriched
+          group: documents-group
+          value.serde: com.ballaci.kstreams.serdesCustomSerdes$DocumentSerde
+        documentApproval:
+          destination: document_approval
           content-type: application/json
-          value.serde: com.ballaci.kstreams.serdesCustomSerdes$OrderFullSerde
+          value.serde: com.ballaci.kstreams.serdesCustomSerdes$DocumentSerde
+        notRelevant:
+          destination: not_relevant
+          content-type: application/json
+          value.serde: com.ballaci.kstreams.serdesCustomSerdes$DocumentSerde
       kafka:
         binder:
           brokers: localhost:9092
@@ -31,7 +35,7 @@ spring:
             configuration:
               default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
               default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-            functions.enricher.groupId: enricher-group
+            functions.route.groupId: router-group
 #debug: true
 
 logging:

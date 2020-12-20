@@ -9,11 +9,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderFull {
+public class Document {
 
     private String id;
-    private String productId;
-    private UserData userData;
-    private int amount;
-
+    private String userId;
+    private String tag;
+    private boolean approvalRelevant;
 }

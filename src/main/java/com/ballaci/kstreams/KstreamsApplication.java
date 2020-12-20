@@ -23,12 +23,15 @@ public class KstreamsApplication {
 
 interface KStreamKTableBinding {
 
-    @Input("inputStream")
-    KStream<?, ?> inputStream();
+    @Input("documents")
+    KStream<?, ?> documents();
 
-    @Input("inputTable")
-    GlobalKTable<?, ?> inputTable();
+    @Input("userTags")
+    GlobalKTable<?, ?> userTags();
 
-    @Output("outputStream")
-    KStream<?, ?> outputStream();
+    @Output("notRelevant")
+    KStream<?, ?> notRelevant();
+
+    @Output("documentApproval")
+    KStream<?, ?> documentApproval();
 }

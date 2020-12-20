@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Slf4j
 @Getter
@@ -11,8 +12,9 @@ import java.io.Serializable;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserData implements Serializable {
+public class UserTags implements Serializable {
 
-    private int id;
-    private String userName;
+    private String userId;
+    private List<UserTag> tags;
+
 }
