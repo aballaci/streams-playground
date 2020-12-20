@@ -20,15 +20,15 @@ public class StreamsConfig {
         return documentKStream
                 .selectKey((key, value) -> value.getUserId())
                 .join(tagsGlobalKTable,
-                        (orderKey, userDataKey) -> orderKey,
+                        (documentKey, userTagsKey) -> documentKey,
                         (document, userTags) -> {
                             document.setApprovalRelevant(isApprovalRelevant(document, userTags));
                             return document;
                         })
-                .selectKey((key, value) -> value.getId())
+                .selectKey((documentKey, document) -> document.getId())
                 .branch(
-                        (key, value) -> value.isApprovalRelevant(),
-                        (key, value) -> !value.isApprovalRelevant()
+                        (key, document) -> document.isApprovalRelevant(),
+                        (key, document) -> !document.isApprovalRelevant()
                 );
 
     }
