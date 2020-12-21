@@ -35,8 +35,14 @@ spring:
             configuration:
               default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
               default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+              application.server: localhost:9092
             functions.route.groupId: router-group
             functions.exposeRest.groupId: exposeRest-group
+          bindings:
+            userTags:
+              consumer:
+                materializedAs: my-store
+
 debug: true
 
 #logging:

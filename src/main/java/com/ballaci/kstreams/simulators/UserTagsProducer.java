@@ -33,6 +33,7 @@ import reactor.kafka.sender.SenderOptions;
 import reactor.kafka.sender.SenderRecord;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -89,6 +90,7 @@ public class UserTagsProducer {
                     log.info(userTags);
                     return SenderRecord.create(new ProducerRecord<>(topic, i.toString(), userTags),i);
                 }))
+                .delayElements(Duration.ofMillis(5))
                 .doOnError(e -> log.error("Send failed", e))
                 .subscribe(r -> {
                     RecordMetadata metadata = r.recordMetadata();
@@ -120,7 +122,7 @@ public class UserTagsProducer {
     }
 
     public static void main(String[] args) throws Exception {
-        int count = 20;
+        int count = 100000;
         CountDownLatch latch = new CountDownLatch(count);
         UserTagsProducer producer = new UserTagsProducer(BOOTSTRAP_SERVERS);
         producer.sendMessages(TOPIC, count, latch);

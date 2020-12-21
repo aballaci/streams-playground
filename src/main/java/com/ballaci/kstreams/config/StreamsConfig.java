@@ -24,6 +24,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 @Configuration
 public class StreamsConfig {
 
+    private static final String STATE_STORE_NAME = "tag-store";
+
     @StreamListener
     @SendTo({"documentApproval", "notRelevant"})
     public KStream<String, Document>[] route(@Input("documents") KStream<String, Document> documentKStream,
@@ -51,5 +53,12 @@ public class StreamsConfig {
 
     private boolean isApprovalRelevant(Document document, UserTags userTags) {
         return userTags.getTags().stream().anyMatch(t -> document.getTag().equals(t.getName()) && t.isRelevant());
+    }
+
+    @Bean
+    public StoreBuilder myStore() {
+        return Stores.keyValueStoreBuilder(
+                Stores.persistentKeyValueStore(STATE_STORE_NAME), Serdes.String(),
+                CustomSerdes.UserTagsSerde());
     }
 }

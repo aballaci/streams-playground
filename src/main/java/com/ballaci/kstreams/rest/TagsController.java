@@ -17,8 +17,7 @@ public class TagsController {
 
 
 
-//    private static final String STATE_STORE_NAME = "user_tags-STATE-STORE-0000000001";
-    private static final String STATE_STORE_NAME = "mystore";
+    private static final String STATE_STORE_NAME = "my-store";
 
     private final InteractiveQueryService interactiveQueryService;
 
@@ -29,13 +28,6 @@ public class TagsController {
     @GetMapping("/tags/{id}")
     UserTags getUserTags(@PathVariable("id") String id) {
         ReadOnlyKeyValueStore<String, UserTags> keyValueStore = interactiveQueryService.getQueryableStore(STATE_STORE_NAME, QueryableStoreTypes.keyValueStore());
-//        StreamsBuilderFactoryBean streamsBuilderFactoryBean = context.getBean("&stream-builder-route", StreamsBuilderFactoryBean.class);
-//        KafkaStreams kafkaStreams = streamsBuilderFactoryBean.getKafkaStreams();
-//        ReadOnlyKeyValueStore<String, UserTags> keyValueStore =
-//                kafkaStreams.store(StoreQueryParameters.fromNameAndType("STATE_STORE_NAME", QueryableStoreTypes.keyValueStore()));
-
-        UserTags userTags = keyValueStore.get(id);
-
-        return userTags;
+        return keyValueStore.get(id);
     }
 }
