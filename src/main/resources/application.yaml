@@ -2,7 +2,7 @@ spring:
   cloud:
     stream:
       function:
-        definition: route
+        definition: route:exposeRest
       default:
         producer:
           useNativeEncoding: true
@@ -36,10 +36,11 @@ spring:
               default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
               default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
             functions.route.groupId: router-group
-#debug: true
+            functions.exposeRest.groupId: exposeRest-group
+debug: true
 
-logging:
-  level:
-    ROOT: ERROR
-    org.apache.kafka: ERROR
-    com.ballaci: TRACE
+#logging:
+#  level:
+#    ROOT: ERROR
+#    org.apache.kafka: ERROR
+#    com.ballaci: TRACE
