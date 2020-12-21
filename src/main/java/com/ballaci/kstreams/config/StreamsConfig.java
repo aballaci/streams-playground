@@ -24,8 +24,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 @Configuration
 public class StreamsConfig {
 
-    private static final String STATE_STORE_NAME = "tags-store-new";
-
     @StreamListener
     @SendTo({"documentApproval", "notRelevant"})
     public KStream<String, Document>[] route(@Input("documents") KStream<String, Document> documentKStream,
